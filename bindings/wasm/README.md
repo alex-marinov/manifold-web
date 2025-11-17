@@ -24,6 +24,39 @@ Manifold has full support for arbitrary vertex properties, and also has IDs that
 
 Also included are a novel and powerful suite of refining functions for smooth mesh interpolation. They handle smoothing both triangles and quads, as well as keeping polygonal faces flat. You can easily create sharp or small-radius edges where desired, or even drive the curvature by normal vectors.
 
+## Browser and Cloudflare Workers Support
+
+This library is fully compatible with modern browsers and Cloudflare Workers! The library automatically detects the runtime environment and only uses Node.js built-in modules when running in Node.js.
+
+**Quick Start (Browser):**
+```javascript
+import Module from 'manifold-3d/manifold.js';
+
+const wasm = await Module();
+wasm.setup();
+
+const cube = wasm.Manifold.cube([10, 10, 10]);
+console.log('Created cube with', cube.numVert(), 'vertices');
+cube.delete();
+```
+
+**Quick Start (Cloudflare Workers):**
+```javascript
+import Module from 'manifold-3d/manifold.js';
+
+export default {
+  async fetch(request) {
+    const wasm = await Module();
+    wasm.setup();
+    const cube = wasm.Manifold.cube([10, 10, 10]);
+    // ... use cube ...
+    cube.delete();
+  }
+};
+```
+
+For detailed browser usage, bundler configuration, and examples, see [BROWSER_USAGE.md](./BROWSER_USAGE.md).
+
 ## Note on memory management
 
 Since Manifold is a WASM module, it does not automatically garbage-collect like regular JavaScript. You must manually `delete()` each object constructed by your scripts (both `Manifold` and `CrossSection`), see [discussion](https://github.com/elalish/manifold/discussions/256#discussioncomment-3944287).

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manifold 3D Browser Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manifold 3D Browser Example</h1>
+    
+    <div class="status info">
+        <strong>Note:</strong> This example requires the manifold.js and manifold.wasm files to be in the same directory.
+    </div>
+
+    <div id="status"></div>
+    <div id="output"></div>
+
+    <h2>Try It Out</h2>
+    <button id="createCube" disabled>Create Cube</button>
+    <button id="createSphere" disabled>Create Sphere</button>
+    <button id="booleanOp" disabled>Boolean Operation</button>
+
+    <script type="module">
+        const statusDiv = document.getElementById('status');
+        const outputDiv = document.getElementById('output');
+
+        function showStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+            statusDiv.appendChild(div);
+        }
+
+        function showOutput(title, data) {
+            const pre = document.createElement('pre');
+            pre.innerHTML = `<strong>${title}:</strong>\n${JSON.stringify(data, null, 2)}`;
+            outputDiv.appendChild(pre);
+        }
+
+        // Initialize Manifold
+        let wasm = null;
+
+        showStatus('Loading Manifold WASM module...', 'info');
+
+        try {
+            // Import the module - adjust path as needed
+            const Module = (await import('./manifold.js')).default;
+            
+            showStatus('WASM module loaded, initializing...', 'info');
+            
+            wasm = await Module();
+            wasm.setup();
+            
+            showStatus('Manifold initialized successfully!', 'success');
+            
+            // Enable buttons
+            document.getElementById('createCube').disabled = false;
+            document.getElementById('createSphere').disabled = false;
+            document.getElementById('booleanOp').disabled = false;
+
+        } catch (error) {
+            showStatus(`Failed to initialize: ${error.message}`, 'error');
+            console.error(error);
+        }
+
+        // Button handlers
+        document.getElementById('createCube').addEventListener('click', () => {
+            try {
+                const cube = wasm.Manifold.cube([10, 10, 10]);
+                const mesh = cube.getMesh();
+                
+                showOutput('Cube Created', {
+                    vertices: mesh.numVert,
+                    triangles: mesh.numTri,
+                    volume: cube.volume(),
+                    surfaceArea: cube.surfaceArea()
+                });
+                
+                cube.delete();
+                showStatus('Cube created and cleaned up', 'success');
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        document.getElementById('createSphere').addEventListener('click', () => {
+            try {
+                const sphere = wasm.Manifold.sphere(5, 64);
+                const mesh = sphere.getMesh();
+                
+                showOutput('Sphere Created', {
+                    vertices: mesh.numVert,
+                    triangles: mesh.numTri,
+                    radius: 5,
+                    segments: 64,
+                    volume: sphere.volume(),
+                    surfaceArea: sphere.surfaceArea()
+                });
+                
+                sphere.delete();
+                showStatus('Sphere created and cleaned up', 'success');
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        document.getElementById('booleanOp').addEventListener('click', () => {
+            try {
+                const cube = wasm.Manifold.cube([10, 10, 10], true);
+                const sphere = wasm.Manifold.sphere(6, 64);
+                const result = cube.subtract(sphere);
+                
+                const mesh = result.getMesh();
+                
+                showOutput('Boolean Operation (Cube - Sphere)', {
+                    cubeVolume: cube.volume(),
+                    sphereVolume: sphere.volume(),
+                    resultVolume: result.volume(),
+                    resultVertices: mesh.numVert,
+                    resultTriangles: mesh.numTri
+                });
+                
+                cube.delete();
+                sphere.delete();
+                result.delete();
+                showStatus('Boolean operation completed and cleaned up', 'success');
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

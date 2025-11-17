@@ -2,6 +2,50 @@
 
 This is the home of our editor, [ManifoldCAD.org](https://manifoldcad.org/), as well as our other public examples of integrations with `three.js`, `<model-viewer>`, and `glTF`. Included are `manifold-gltf.js` and `gltf-io.js`, which are intended to be fairly general-purpose libraries for interfacing between manifolds and glTF. We should probably make them into their own npm package at some point.
 
+## Browser and Cloudflare Workers Examples
+
+This directory now includes examples for using manifold-3d in browser and Cloudflare Workers environments:
+
+### Browser Example (`browser-example.html`)
+
+A standalone HTML file demonstrating how to use manifold-3d in the browser with no build step required. Simply:
+
+1. Copy `browser-example.html`, `manifold.js`, and `manifold.wasm` to the same directory
+2. Serve them with any HTTP server (e.g., `python3 -m http.server`)
+3. Open in your browser
+
+The example includes:
+- Creating cubes and spheres
+- Boolean operations
+- Displaying mesh statistics
+- Proper memory management
+
+### Cloudflare Workers Example (`cloudflare-worker.js`)
+
+A complete Cloudflare Worker that performs 3D geometry operations on-demand. Includes:
+
+- Creating parametric geometry (cubes, spheres)
+- Boolean operations (add, subtract, intersect)
+- JSON API responses
+- Proper WASM initialization and memory management
+
+To deploy:
+
+```bash
+npm install -g wrangler
+npm install manifold-3d
+wrangler deploy
+```
+
+The worker exposes endpoints:
+- `GET /cube?size=10`
+- `GET /sphere?radius=5&segments=64`
+- `GET /boolean?op=subtract`
+
+See [`wrangler.toml`](./wrangler.toml) for configuration and [`cloudflare-worker.js`](./cloudflare-worker.js) for implementation.
+
+For more details on browser and Cloudflare Workers usage, see [BROWSER_USAGE.md](../BROWSER_USAGE.md).
+
 ## Local development
 
 First, follow the directions in the root README to get your C++ build environment set up and working for WASM. From this directory (`bindings/wasm/examples/`) you can test the JS bindings by running:
