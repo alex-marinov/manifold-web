@@ -62,7 +62,12 @@
     "solid",
     "CAD",
     "triangle",
-    "SDF"
+    "SDF",
+    "browser",
+    "cloudflare-workers",
+    "webassembly",
+    "wasm",
+    "web-workers"
   ],
   "contributors": [
     "Emmett Lalish <elalish>",
