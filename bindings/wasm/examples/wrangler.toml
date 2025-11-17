@@ -1,0 +1,31 @@
+# Cloudflare Worker Configuration for manifold-3d
+#
+# This configuration file is used by Wrangler to deploy your worker.
+# See: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "manifold-3d-worker"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-01-01"
+
+# Worker limits - adjust based on your needs
+# https://developers.cloudflare.com/workers/platform/limits/
+[limits]
+# CPU time limit in milliseconds (10-50000)
+cpu_ms = 10000
+
+# Build configuration
+[build]
+command = "npm install manifold-3d"
+
+# Environment variables (optional)
+# [vars]
+# MY_VAR = "value"
+
+# KV Namespaces (if needed)
+# [[kv_namespaces]]
+# binding = "MY_KV"
+# id = "your-kv-namespace-id"
+
+# Development settings
+# [dev]
+# port = 8787
